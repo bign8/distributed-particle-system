@@ -44,4 +44,4 @@ admin.on('connection', function (socket) {
 	});
 
 // Show that things have begun
-console.log('the only way to begin is to take a step');
+console.log('Application listening on http://' + (config.system_server || '*') + ":" + config.system_port + ".");

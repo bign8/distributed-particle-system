@@ -21,3 +21,18 @@ body { font: 12px/1 Helvetica, "Comic Sans", "Comic Sans MS", cursive; }
 	background-color: rgba(230,230,230,.7);
 	color: rgba(130,130,130,.7);
 }
+#adminNum {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	height: 180px;
+	width: 200px;
+	margin: -90px 0 0 -100px;
+	text-align: center;
+	line-height: 180px;
+	font-size: 120px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	background-color: rgba(230,230,230,.7);
+	color: rgba(130,130,130,.7);
+}
