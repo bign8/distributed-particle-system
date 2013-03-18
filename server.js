@@ -22,26 +22,33 @@ var io = require('socket.io').listen(webServer, { // github.com/LearnBoost/Socke
 // Start subClients of sockets - move to other areas once better understood
 var admin = io.of('/admin');
 var client = io.of('/client');
-client.on('connection', function (socket) {
-	socket.emit('a message', {
-		that: 'only',
-		'/client': 'will get'
-	});
-	client.emit('a message', {
-		everyone: 'in', 
-		'/client': 'will get'
+client.on('connection', function(clientSocket) {
+	updateClientNumbers(undefined);
+	clientSocket.on('disconnect', function() {
+		//clientSocket.close();
+		//clientSocket.disconnect('unauthorized');
+		updateClientNumbers(clientSocket);
 	});
 });
-admin.on('connection', function (socket) {
-		socket.emit('a message', {
-			that: 'only',
-			'/admin': 'will get'
-		});
-		admin.emit('a message', {
-			everyone: 'in', 
-			'/admin': 'will get'
-		});
+admin.on('connection', function(adminSocket) {
+	adminSocket.on('setState', function(state) {
+		console.log(state);
+		client.emit('setState', state);
 	});
+});
+
+// need hash and number...crap
+function updateClientNumbers(curr) {
+	var clients = client.clients();
+	for(var i=0; i < clients.length; i++) {
+		if (clients[i].disconnected)
+			delete clients[i];
+	}
+	console.log(clients);
+	for(var i=0; i < clients.length; i++) {
+		clients[i].emit('test',i);
+	}
+}
 
 // Show that things have begun
 console.log('Application listening on http://' + (config.system_server || '*') + ":" + config.system_port + ".");

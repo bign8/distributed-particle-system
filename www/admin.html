@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link rel="stylesheet" href="/in/admin.css">
+		<link rel="stylesheet" href="/in/css.css">
 		<script src="/in/jquery-1.9.1.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="/in/admin.js"></script>
 	</head>
 	<body class="admin">
 		<p>This gets a little more complicated</p>
+		<button onclick="Admin.setState('admin');">Enable</button>
+		<button onclick="Admin.setState('run');">Disable</button>
 	</body>
 </html>

@@ -5,11 +5,24 @@ $(document).ready(function() {
 	var socket = io.connect('/client');
 	
 	socket.on('connect', function () {
-		socket.emit('hi!');
+		console.log('connected to socket');
 	});
 
-	socket.on('news', function () {
-		socket.emit('woot');
+	socket.on('setState', function (state) {
+		console.log(state);
+		switch (state) {
+			case 'admin':
+				$('#adminNum').html(Math.floor(Math.random()*100)).fadeIn();
+				break;
+			case 'run':
+				$('#adminNum').fadeOut();
+				break;
+		}
+		
+	});
+	
+	socket.on('test', function(data) {
+		console.log(data);
 	});
 	
 	// ensure canvas is pretty + to scale
