@@ -51,4 +51,17 @@ $(document).ready(function() {
 		context.fillStyle="#FF0000";
 		context.fillRect(0,0,150,75);
 	}
+	
+	// Small full screen button for awesomeness
+	if (fullScreenApi.supportsFullScreen) {
+		var fsEle = $('body');
+		$('#fullLink').click(function() {
+			fullScreenApi.requestFullScreen(fsEle.get(0));
+		});
+		fsEle.bind(fullScreenApi.fullScreenEventName, function() {
+			$('#fullLink').toggle(!fullScreenApi.isFullScreen());
+		});
+	} else {
+		$('#fullLink').hide();
+	}
 });

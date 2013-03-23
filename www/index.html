@@ -3,11 +3,13 @@
 	<head>
 		<link rel="stylesheet" href="/in/css.css">
 		<script src="/in/jquery-1.9.1.min.js"></script>
+		<script src="/in/fullscreen-api.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="/in/js.js"></script>
 	</head>
 	<body class="client">
-		<a id="adminLink" href="/admin.html" target="_blank">Config</a>
+		<a id="fullLink" class="links left" href="#">Full Screen</a>
+		<a id="adminLink" class="links right" href="/admin.html" target="_blank">Config</a>
 		<div id="adminNum">...</div>
 		<canvas id="canvas"></canvas>
 	</body>
