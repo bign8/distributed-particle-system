@@ -23,11 +23,14 @@ var io = require('socket.io').listen(webServer, { // github.com/LearnBoost/Socke
 var admin = io.of('/admin');
 var client = io.of('/client');
 client.on('connection', function(clientSocket) {
-	updateClientNumbers(undefined);
+	//updateClientNumbers(undefined);
 	clientSocket.on('disconnect', function() {
 		//clientSocket.close();
 		//clientSocket.disconnect('unauthorized');
-		updateClientNumbers(clientSocket);
+		//updateClientNumbers(clientSocket);
+	});
+	clientSocket.on('resetSize', function(screen) {
+		console.log(screen);
 	});
 });
 admin.on('connection', function(adminSocket) {
