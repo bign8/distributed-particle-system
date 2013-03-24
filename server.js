@@ -22,18 +22,36 @@ var io = require('socket.io').listen(webServer, { // github.com/LearnBoost/Socke
 // Start subClients of sockets - move to other areas once better understood
 var admin = io.of('/admin');
 var client = io.of('/client');
+
+var clients = {}; // list of connected clients
+var screens = {}; // list of connected screen sizes
+var admins = {}; // list of connected admins
+
 client.on('connection', function(clientSocket) {
-	//updateClientNumbers(undefined);
+	// List of live connected clients - http://bit.ly/13mp9cO
+	clients[clientSocket.id] = clientSocket;
 	clientSocket.on('disconnect', function() {
-		//clientSocket.close();
-		//clientSocket.disconnect('unauthorized');
-		//updateClientNumbers(clientSocket);
+		delete clients[clientSocket.id];
+		delete screens[clientSocket.id];
+		admin.emit('leaveScreen', clientSocket.id);
 	});
+	
 	clientSocket.on('resetSize', function(screen) {
-		console.log(screen);
+		screens[clientSocket.id] = screen;
+		screen.id = clientSocket.id;
+		admin.emit('resizeFrame', screen);
 	});
 });
 admin.on('connection', function(adminSocket) {
+	// list of live connected admins - http://bit.ly/13mp9cO
+	admins[adminSocket.id] = adminSocket;
+	adminSocket.on('disconnect', function() {
+		delete admins[adminSocket.id];
+	});
+	console.log('Number of admins: ' + Object.keys(admins).length);
+	
+	adminSocket.emit('loadScreens', screens);
+	
 	adminSocket.on('setState', function(state) {
 		console.log(state);
 		client.emit('setState', state);
