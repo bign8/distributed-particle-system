@@ -9,7 +9,6 @@ $(document).ready(function() {
 	
 	// ensure canvas is pretty + to scale
     function resizeCanvas(force) {
-		force = (!!force) ? force : false;
 		if (canvas.width != window.innerWidth || canvas.height != window.innerHeight || force) {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;

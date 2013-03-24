@@ -1,2 +1,22 @@
 /* overall cleanup */
 body { font: 12px/1 Helvetica, "Comic Sans", "Comic Sans MS", cursive; }
+.adminList {
+	padding:0;
+	list-style: none;
+	width: 80%;
+	margin: 0 auto;
+}
+.adminList > li {
+	border:solid 1px black;
+	margin-bottom: 10px;
+	padding: 10px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#screenLayout .screen {
+	fill: red;
+}
+#screenLayout .screenID {
+	text-anchor: middle;
+}

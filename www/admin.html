@@ -7,10 +7,21 @@
 		<script src="/in/admin.js"></script>
 	</head>
 	<body class="admin">
-		<p>This gets a little more complicated</p>
-		<p>
-			<button onclick="Admin.setState('admin');">Enable</button>
-			<button onclick="Admin.setState('run');">Disable</button>
-		</p>
+		<ul class="adminList">
+			<li>
+				<p>General Admin Controls</p>
+				<p>
+					<button onclick="Admin.setState('admin');">Enable</button>
+					<button onclick="Admin.setState('run');">Disable</button>
+				</p>
+			</li>
+			<li>
+				<p>Screen Location Control</p>
+				<svg width="100%" height="200" id="screenLayout">
+					<text x="50" y="50" class="screenID">Stuff</text>
+					<rect width="20" height="20" class="screen" x="40" y="40" />
+				</svg>
+			</li>
+		</ul>
 	</body>
 </html>
