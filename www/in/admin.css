@@ -13,10 +13,17 @@ body { font: 12px/1 Helvetica, "Comic Sans", "Comic Sans MS", cursive; }
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
-
+#screenLayout {
+	display:block;
+	height: 200px;
+	width: 100%;
+}
+/*
 #screenLayout .screen {
 	fill: red;
 }
 #screenLayout .screenID {
 	text-anchor: middle;
+	fill: #fff;
 }
+*/
