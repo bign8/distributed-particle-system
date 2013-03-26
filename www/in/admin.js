@@ -43,30 +43,52 @@ ScreenManager = {
 		this.R = Raphael(obj, this.obj.width(), this.obj.height());
 	},
 	'resizeScreen': function(obj) {
-		if (this.screens[obj.id] == undefined) {
-			var sizeX = 50, sizeY = 50,
+		if (this.screens[obj.id] == undefined) { // new screen
+			var sizeX = 40, sizeY = 40,
 				newX = Math.floor(Math.random()*(this.obj.width()-sizeX)),
 				newY = Math.floor(Math.random()*(this.obj.height()-sizeY));
-			obj.c = this.R.rect(newX,newY,sizeX, sizeY).attr({
-				fill: '#555',
-				stroke: 'none'
+			
+			// create elements
+			this.R.setStart();
+			obj.rect = this.R.rect(newX, newY, sizeX, sizeY).attr({
+				fill:'#ddd', 
+				stroke:'none'
 			});
-			obj.c.drag(function(dx, dy) { // move
-				this.attr({x: this.ox + dx, y: this.oy + dy});
-			}, function() { // start
-				this.ox = this.attr('x');
-				this.oy = this.attr('y');
-				this.attr({opacity: 0.5});
-			}, function() { // stop
-				this.attr({opacity: 1});
+			obj.text = this.R.text(newX + Math.floor(sizeX/2), newY + Math.floor(sizeY/2), '99').attr({
+				fill: '#444',
+				'font-size': 20
+			});
+			obj.set = this.R.setFinish();
+			
+			// hover border
+			obj.set.hover(function() {
+				obj.rect.attr({stroke: '#000'});
+			}, function() {
+				obj.rect.attr({stroke: 'none'});
 			});
 			
+			// drag and drop actions
+			obj.set.drag(function(dx,dy){ // move
+				obj.set.forEach(function(e){
+					e.attr({x: e.ox + dx, y: e.oy + dy});
+				});
+			},function() { // start
+				obj.set.forEach(function(e){
+					e.ox = e.attr("x");
+					e.oy = e.attr("y");
+				}).toFront().attr({opacity: 0.5});
+			}, function() { // up
+				obj.set.attr({opacity: 1});
+			});
+		} else { // old screen
+		
 		}
 		this.screens[obj.id] = obj;
 	},
 	'leaveScreen': function(id) {
 		if (this.screens[id] !== undefined) {
 			this.screens[id].c.remove();
+			this.screens[id].t.remove();
 			delete this.screens[id];
 		}
 	}
