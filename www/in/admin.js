@@ -45,48 +45,49 @@ ScreenManager = {
 			o = this.obj = $('#' + obj),
 			p = this.R = Raphael(obj, this.obj.width(), this.obj.height());
 		
-		// Note: all o.height() can be replaced with p.height, same for (this|that).obj.height() references
+		this.cx = (p.width-55)/2+55;
+		this.cy = p.height/2;
 		
 		this.unLoaded = p.set();
 		this.unLoadedAttr = {
-			'clip-rect':('0 5 '+this.obj.width()+' '+(this.obj.height()-10))
+			'clip-rect':('0 5 '+p.width+' '+(p.height-10))
 		};
 		
 		this.loaded = p.set(); // unused so far
 		
 		// draw interface
-		p.rect(1,1,o.width()-2,o.height()-2); // border
-		p.path('M55,0V'+o.height()); // load box bar
-		
-		this.scroll = p.path('M50,5V'+(o.height()-5)).attr({
+		p.rect(1,1,p.width-2,p.height-2); // border
+		p.path('M55,0V'+p.height); // load box bar
+		this.scroll = p.path('M50,5V'+(p.height-5)).attr({ // unloaded scroll bar interface
 			'stroke-width':5,
 			'stroke-linecap':'round'
 		}).hide().drag(function(dx, dy) { // move
 			var next = dy-this.last;
 			this.last = dy;
 			this.transform('T0,'+next+'...'); // clean if happens before scale
-			// add transform to that.unLoaded
-			that.unLoaded.transform('T0,'+-next*this.toScale+'...');
+			that.unLoaded.transform('T0,'+next*this.toScale+'...');
 		}, function() { // start
 			this.last = 0;
-			this.toScale = (that.scrollHeight)/(that.scroll.getBBox().height); // TO FIX: scrolling dx scale
+			this.toScale = -(that.scrollHeight)/(p.height-7);// TO FIX: scrolling dx scale (very close)
 		}, function() { // stop
 			var box = this.getBBox(),
-				next = Math.min(Math.max(0, 5-box.y), o.height()-box.y2-5);
+				next = Math.min(Math.max(0, 5-box.y), p.height-box.y2-5);
 			this.animate({transform:'T0,'+next+'...'}, 100); // needs to happen before scale
-			that.unLoaded.animate({transform:'T0,'+-next*this.toScale+'...'}, 100);
-			// add transform to that.unLoaded
+			that.unLoaded.animate({transform:'T0,'+next*this.toScale+'...'}, 100);
 		});
 	},
 	'resizeScreen': function(obj) {
 		if (this.screens[obj.id] == undefined) { // new screen
 			var sizeX = 40, sizeY = 40, that = this;
 			
+			obj.cx = sizeX/2;
+			obj.cy = sizeY/2;
+			
 			// create elements
 			this.R.setStart();
 			obj.rect = this.R.rect(0, 0, sizeX, sizeY).attr({
 				fill:'#ddd', 
-				stroke:'none'
+				stroke:'#ddd'
 			});
 			obj.text = this.R.text(Math.floor(sizeX/2), Math.floor(sizeY/2), badNumber++).attr({
 				fill: '#444',
@@ -94,54 +95,73 @@ ScreenManager = {
 			});
 			obj.set = this.R.setFinish();
 			
-			// hover border
-			obj.set.hover(function() {
-				obj.rect.attr({stroke: '#000'});
-			}, function() {
-				obj.rect.attr({stroke: 'none'});
+			obj.set.attr({
+				title:(obj.width+'x'+obj.height+' @ '+(obj.full?'Fullscreen':'Browser'))
 			});
 			
-			// drag and drop actions
+			// hover border
+			obj.set.hover(function() {
+				obj.rect.animate({stroke: '#000'}, 300);
+			}, function() {
+				obj.rect.animate({stroke: '#ddd'}, 300);
+			});
+			
+			// drag and drop screen actions
+			obj.state = 'unloaded';
 			obj.set.drag(function(dx,dy){ // move
-				obj.set.forEach(function(e){
-					e.attr({x: e.ox + dx, y: e.oy + dy});
-				});
+				if (obj.state == 'unloaded') {
+					obj.set.transform('T'+(obj.set.obox.x + dx)+','+(obj.set.obox.y + dy));
+				} else {
+					// TODO: this needs to be updated for grid transformations
+					obj.set.transform('T'+(obj.set.obox.x + dx)+','+(obj.set.obox.y + dy));
+				}
 			},function() { // start
-				obj.set.forEach(function(e){
-					e.ox = e.attr("x");
-					e.oy = e.attr("y");
-				}).toFront().attr({opacity: 0.5});
+				obj.set.toFront().attr({opacity: 0.5});
+				obj.set.obox = obj.set.getBBox();
 			}, function() { // up
 				obj.set.attr({opacity: 1});
-				var box = obj.set.getBBox();
+				
+				var box = obj.set.getBBox(), start = obj.state;
 				if (Math.floor((box.x+box.x2)/2) > 55) {
-					console.log('removed');
+					console.log('Screen removed from unLoaded');
 					that.unLoaded.exclude(obj.set);
+					that.loaded.push(obj.set);
+					obj.state = 'loaded';
 				} else if (that.unLoaded.items.indexOf(obj.set) == -1) {
+					console.log('Screen added to unLoaded');
 					that.unLoaded.push(obj.set);
+					that.loaded.exclude(obj.set);
+					obj.state = 'unloaded';
 				}
-				that.reDrawScroll();
+				if (start != obj.state) that.reDrawUnloadedScroll();
+				
+				if (obj.state == 'loaded') {
+					// TODO: loaded transformation operation
+					moveExact(obj.set, that.cx-obj.cx, that.cy-obj.cy);
+					// this is where center of mass needs to be!!
+				}
 			});
 			
 			// cleanup stuff
-			this.unLoaded.push(obj.set);
-			this.unLoaded.attr(this.unLoadedAttr);
-			this.reDrawScroll();
+			this.unLoaded.push(obj.set).attr(this.unLoadedAttr);
+			this.reDrawUnloadedScroll();
 		} else {
 			// old screen
+			
 		}
 		this.screens[obj.id] = obj;
 	},
 	'leaveScreen': function(id) {
 		if (this.screens[id] !== undefined) {
 			this.unLoaded.exclude(this.screens[id].set);
+			this.loaded.exclude(this.screens[id].set);
 			this.screens[id].set.remove();
 			delete this.screens[id];
-			this.reDrawScroll();
+			this.reDrawUnloadedScroll();
 		}
 	},
-	'reDrawScroll': function() {
-		console.log('re draw scroll');
+	'reDrawUnloadedScroll': function() {
+		console.log('draw scroll');
 		var sizeY = 40, newX = this.scrollShowing?5:8, box, that = this;
 		
 		// re-draw scroll order
@@ -150,12 +170,11 @@ ScreenManager = {
 			box = e.getBBox();
 			e.translate(newX-box.x, newY-box.y);
 			if (i == that.unLoaded.length-1) {
-				that.toggleScrolling( (newY + sizeY) >= that.obj.height()-5, (newY + sizeY) );
+				that.toggleUnloadedScrolling( (newY + sizeY) >= that.R.height-5, (newY + sizeY) );
 			}
 		});
 	},
-	'toggleScrolling': function(show, maxHeight) {
-		console.log('toggleing scrolling');
+	'toggleUnloadedScrolling': function(show, maxHeight) {
 		// astually toggle
 		if(show && this.scrollShowing != show) {
 			this.scroll.show();
@@ -168,12 +187,15 @@ ScreenManager = {
 		// size scrollbar
 		if (show) {
 			this.scrollHeight = maxHeight;
-			// TO FIX: Scale scroll bar
-			var toScale = Math.pow(this.obj.height()-5,2)/(maxHeight*this.scroll.getBBox().height);
-			this.scroll.scale(1,toScale,0,5);
-			// re-zero scroll bar?
-			this.scroll.translate(0, 5-this.scroll.getBBox().y);
+			// TO FIX: Scale scroll bar (might be working)
+			var toScale = Math.pow(this.R.height-10,2)/(maxHeight*this.scroll.getBBox().height);
+			this.scroll.transform('...s1,'+toScale+',50,5');
+			moveExact(this.scroll,50,5);
 		}
 		this.scrollShowing = show;
 	}
 };
+function moveExact(obj, x, y) {
+    var box = obj.getBBox();
+    obj.transform('t'+(x-box.x)+','+(y-box.y) + '...');
+}
