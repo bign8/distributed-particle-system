@@ -1,10 +1,10 @@
 // see http://www.html5canvastutorials.com/tutorials/html5-canvas-images/
-
 var socket;
 
 $(document).ready(function() {
 	socket = io.connect('/admin');
 	ScreenManager.initManager('screenLayout');
+	Admin.initAdmin();
 	
 	socket.on('connect', function() {
 		console.log('socket connected');
@@ -30,17 +30,38 @@ $(document).ready(function() {
 	});
 });
 
+var currentState = 'noadmin';
 Admin = {
+	'initAdmin': function() {
+		// Find and listen to buttons
+		var that = this;
+		$('#btn_admin').click(function(ele){
+			that.setState('admin');
+			toggleBtn(this);
+		});
+		$('#btn_noadmin').click(function(ele){
+			that.setState('noadmin');
+			toggleBtn(this);
+		}).attr('disabled', 'disabled');
+
+		function toggleBtn(that) {
+			$('#btn_admin,#btn_noadmin').removeAttr("disabled");
+			$(that).attr("disabled", "disabled");
+		}
+	},
 	'setState': function(state) {
-		socket.emit('setState', state);
+		currentState = state;
+		for (var key in ScreenManager.screens) {
+			var screen = ScreenManager.screens[key];
+			socket.emit('setState', {id:screen.id, state:state, prettyNum:screen.prettyNum});
+		}
 	}
 };
 
 
-var badNumber = 0;
+var badNumber = 1;
 ScreenManager = {
 	'screens': {},
-	'screenNumber': 0,
 	'scrollShowing': false,
 	'initManager': function(obj) {
 		var that = this,
@@ -83,6 +104,8 @@ ScreenManager = {
 	'resizeScreen': function(obj) {
 		if (this.screens[obj.id] == undefined) { // new screen
 			var sizeX = 40, sizeY = 40, that = this;
+			obj.prettyNum = badNumber++;
+			socket.emit('setState',{id:obj.id, state:currentState, prettyNum: obj.prettyNum})
 			
 			obj.cx = sizeX/2;
 			obj.cy = sizeY/2;
@@ -93,7 +116,7 @@ ScreenManager = {
 				fill:'#ddd', 
 				stroke:'#ddd'
 			});
-			obj.text = this.R.text(Math.floor(sizeX/2), Math.floor(sizeY/2), badNumber++).attr({
+			obj.text = this.R.text(Math.floor(sizeX/2), Math.floor(sizeY/2), obj.prettyNum).attr({
 				fill: '#444',
 				'font-size': 20
 			});
@@ -202,7 +225,7 @@ ScreenManager = {
 			obj.state = 'unloaded';
 			obj.set.drag(move, start, end);
 
-			// Cleanup Working Area - Remove Gaps
+			// Cleanup Working Area - Remove Gaps - UNIMPLEMENTED, FIX AND CALL
 			function smashUs() {
 			    //if (c.length == 0) return;
 			    var xList = [], yList = [], minX=1e10, minY=1e10, temp, gapAtX = -1, gapAtY = -1, count = 0;
@@ -252,8 +275,10 @@ ScreenManager = {
 			this.unLoaded.push(obj.set).attr(this.unLoadedAttr);
 			this.reDrawUnloadedScroll();
 		} else {
-			// old screen
-			
+			// Old screen, update status
+			this.screens[obj.id].set.attr({
+				title:(obj.width+'x'+obj.height+' @ '+(obj.full?'Fullscreen':'Browser'))
+			});
 		}
 		this.screens[obj.id] = obj;
 	},
@@ -296,7 +321,7 @@ ScreenManager = {
 			// TO FIX: Scale scroll bar (might be working)
 			var toScale = Math.pow(this.R.height-10,2)/(maxHeight*this.scroll.getBBox().height);
 			this.scroll.transform('...s1,'+toScale+',50,5');
-			that.moveExact(this.scroll,50,5);
+			this.moveExact(this.scroll,50,5);
 		}
 		this.scrollShowing = show;
 	},

@@ -8,17 +8,32 @@
 		<script src="/in/admin.js"></script>
 	</head>
 	<body class="admin">
+		<hgroup>
+			<h1>Distributed Particle System Administrator</h1>
+			<h2>By: Nathan Woods and CS389 Students</h2>
+		</hgroup>
 		<ul class="adminList">
 			<li>
 				<p>General Admin Controls</p>
 				<p>
-					<button onclick="Admin.setState('admin');">Enable</button>
-					<button onclick="Admin.setState('run');">Disable</button>
+					<button id="btn_admin">Show Numbers</button>
+					<button id="btn_noadmin">Hide Numbers</button>
 				</p>
 			</li>
 			<li>
 				<p>Screen Location Control</p>
 				<div id="screenLayout"></div>
+				<button id="btn_clear">Clear screen</button>
+				<button id="btn_store">Store configuration</button>
+				<button id="btn_reset">Reset configuration</button>
+			</li>
+			<li>
+				<h4>Know issues:</h4>
+				<ul>
+					<li>Issues with lost connections, re-numbered frames</li>
+					<li>Gaps can accuire over many screen manipulations</li>
+					<li>Configuratons are not stored at this point in time</li>
+				</ul>
 			</li>
 		</ul>
 	</body>

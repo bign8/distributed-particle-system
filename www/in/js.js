@@ -32,14 +32,25 @@ $(document).ready(function() {
 	socket.on('connect', function () {
 		console.log('connected to socket');
 		resizeCanvas(true);
+
+		// Get Guids
+		if (sessionStorage.appGUID) {
+			socket.emit('checkGUID', sessionStorage.appGUID);
+		} else {
+			socket.emit('getGUID', null, function(GUID) {
+				console.log(GUID);
+				sessionStorage.appGUID = GUID;
+			});
+		}
 	});
 	socket.on('setState', function (state) {
 		console.log(state);
-		switch (state) {
+		// session storage, setting guid
+		switch (state.state) {
 			case 'admin':
-				$('#adminNum').html(Math.floor(Math.random()*100)).fadeIn();
+				$('#adminNum').html(state.prettyNum).fadeIn();
 				break;
-			case 'run':
+			case 'noadmin':
 				$('#adminNum').fadeOut();
 				break;
 		}
@@ -68,8 +79,8 @@ $(document).ready(function() {
 	 * https://developer.mozilla.org/en-US/docs/HTML/Canvas/Drawing_Graphics_with_Canvas
 	 * http://www.netmagazine.com/tutorials/learning-basics-html5-canvas
 	 */
-	function drawStuff(resize) {
-		context.fillStyle="#000000";
-		context.fillRect(0,0,150,75);
+	function drawStuff(isResize) {
+		//context.fillStyle="#000000";
+		//context.fillRect(0,0,150,75);
 	}
 });

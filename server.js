@@ -4,7 +4,6 @@ var fileServer = new(staticServer.Server)('./www'); // create server
 
 // Create web server
 var webServer = require('http').createServer(function(req, res) {
-	//console.log(req.url);
 	fileServer.serve(req, res);
 }).listen(config.system_port);
 
@@ -24,8 +23,9 @@ var admin = io.of('/admin');
 var client = io.of('/client');
 
 var clients = {}; // list of connected clients
+var uniqueClients = {};
 var screens = {}; // list of connected screen sizes
-var admins = {}; // list of connected admins
+var admins  = {}; // list of connected admins
 
 client.on('connection', function(clientSocket) {
 	// List of live connected clients - http://bit.ly/13mp9cO
@@ -41,6 +41,16 @@ client.on('connection', function(clientSocket) {
 		screen.id = clientSocket.id;
 		admin.emit('resizeFrame', screen);
 	});
+
+	clientSocket.on('getGUID', function(undefined, fn) {
+		var GUID = guid();
+		// verify guid is unique
+		uniqueClients[GUID] = clientSocket;
+		fn(GUID);
+	});
+	clientSocket.on('checkGUID', function(GUID){
+		// Ensure only one screen here
+	});
 });
 admin.on('connection', function(adminSocket) {
 	// list of live connected admins - http://bit.ly/13mp9cO
@@ -54,22 +64,17 @@ admin.on('connection', function(adminSocket) {
 	
 	adminSocket.on('setState', function(state) {
 		console.log(state);
-		client.emit('setState', state);
+		client.socket(state.id).emit('setState', state)
 	});
 });
 
-// need hash and number...crap
-function updateClientNumbers(curr) {
-	var clients = client.clients();
-	for(var i=0; i < clients.length; i++) {
-		if (clients[i].disconnected)
-			delete clients[i];
-	}
-	console.log(clients);
-	for(var i=0; i < clients.length; i++) {
-		clients[i].emit('test',i);
-	}
-}
-
 // Show that things have begun
 console.log('Application listening on http://' + (config.system_server || '*') + ":" + config.system_port + ".");
+
+// possible way to identify clients
+function s4() {
+	return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+};
+function guid() {
+	return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+};
