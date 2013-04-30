@@ -79,58 +79,53 @@ $(document).ready(function() {
 	 * https://developer.mozilla.org/en-US/docs/HTML/Canvas/Drawing_Graphics_with_Canvas
 	 * http://www.netmagazine.com/tutorials/learning-basics-html5-canvas
 	 */
-	  
-	function drawStuff(isResize) {
-		context.clearRect(0,0, window.innerWidth, window.innerHeight);	
-		for(var i=0; i<ballNumber; i++){ //this is where you will have multiple balls drawn
+	function ballPhysics(){
+		for (i=0; i<ballArray.length; i++) {
 			var ball = ballArray[i];
-			
+
+			if ( ball.y>window.innerHeight-ball.radius ||  (ball.y<ball.radius && ball.dy < 0) ) {
+				ball.dx += Math.floor(Math.random()*4)-2; // fun bounce
+				ball.dy  = -ball.dy;
+			}
+			if ( ball.x>window.innerWidth-ball.radius || (ball.x<ball.radius && ball.dx < 0) ) {
+				ball.dx  = -ball.dx;
+				ball.dy += Math.floor(Math.random()*4)-2; // fun bounce
+			}
+			ball.dx = Math.min(Math.max(ball.dx, -10), 10);
+			ball.dy = Math.min(Math.max(ball.dy, -10), 10);
+			ball.x += ball.dx;
+			ball.y += ball.dy;
+		}
+		drawStuff();
+	}
+	function drawStuff(isResize) {
+		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+		// Draws each ball on the canvas
+		for (var i=0; i<ballNumber; i++){
 			context.beginPath();
-			context.fillStyle=ball.ballColor;
-			
-			// Draws a circle of radius 20 at the coordinates 100,100 on the canvas
-			context.arc(ball.x, ball.y, ball.ballSize, 0, Math.PI*2, true);
+			context.fillStyle = ballArray[i].color;
+			context.arc(ballArray[i].x, ballArray[i].y, ballArray[i].radius, 0, Math.PI*2, true);
 			context.closePath();
 			context.fill();
 		}
 	}
 	
+	// Initialize array of balls
 	var ballArray = [];
 	ballNumber = parseInt(prompt("How many balls"));
-	
-	for(var i=0; i < ballNumber; i++){
+	for (var i=0; i<ballNumber; i++){
 		ballArray[i] = {
 			x:Math.random()*window.innerWidth,
 			y:Math.random()*window.innerHeight,
-			ballSize:Math.floor(Math.random()*10)+10,
+			radius:Math.floor(Math.random()*10)+10,
 			dx:Math.floor(Math.random()*20)-10,
 			dy:Math.floor(Math.random()*20)-10,
-			ballColor:'#'+Math.floor(Math.random()*16777215).toString(16)
+			color:'#'+Math.floor(Math.random()*11184810).toString(16) // full color span multiplyer 16777215
 		};
 	}
-	function ballPhysics(){
-		for (i=0; i<ballArray.length; i++) {
-			var ball = ballArray[i];
-			if( ball.x<ball.ballSize && ball.dx < 0){
-				ball.dx=-ball.dx;
-			}
-			if( ball.y<ball.ballSize && ball.dy < 0){
-				ball.dy=-ball.dy;
-			}
-			if( ball.x>window.innerWidth - ball.ballSize){
-				ball.dx=-ball.dx;
-			}
-			if( ball.y>window.innerHeight - ball.ballSize){
-				ball.dy=-ball.dy;
-			}
-			ball.x += ball.dx;
-			ball.y += ball.dy;
-			ballArray[i] = ball;
-			//console.log(ball);
-		}
-		drawStuff();
-	}
 	
+	// Start the animation
 	setInterval(ballPhysics, 10);
 });
 
