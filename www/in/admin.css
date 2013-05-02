@@ -1,5 +1,5 @@
 /* overall cleanup */
-body, button { font: 12px/1 Helvetica, "Comic Sans", "Comic Sans MS", cursive }
+body, button { font: 12pt/1 Helvetica, "Comic Sans", "Comic Sans MS", cursive }
 hgroup { text-align: center }
 .adminList {
 	padding:0;
@@ -21,3 +21,4 @@ hgroup { text-align: center }
 	height: 200px;
 	width: 100%;
 }
+.ui-widget { font-size: 62.5% !important }

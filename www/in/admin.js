@@ -33,13 +33,48 @@ $(document).ready(function() {
 var currentState = 'noadmin';
 Admin = {
 	'initAdmin': function() {
+		$('input[type=checkbox]').prettyCheckable();
+
+		$( "#slider-range-max" ).slider({
+			range: "min",
+			min: 1,
+			max: 10,
+			value: 2,
+			slide: function( event, ui ) {
+				$( "#amount" ).val( ui.value );
+			}
+		});
+		$( "#amount" ).val( $( "#slider-range-max" ).slider( "value" ) );
+
+		$( "#slider-range-max-2" ).slider({
+			range: "min",
+			min: 1,
+			max: 10000,
+			value: 2,
+			slide: function( event, ui ) {
+				$( "#asdf" ).val( ui.value );
+			}
+		});
+		$( "#asdf" ).val( $( "#slider-range-max-2" ).slider( "value" ) );
+
+		$( "#slider-range-max-3" ).slider({
+			range: "min",
+			min: 10,
+			max: 1000,
+			value: 10,
+			slide: function( event, ui ) {
+				$( "#asdfasdf" ).val( ui.value );
+			}
+		});
+		$( "#asdfasdf" ).val( $( "#slider-range-max-3" ).slider( "value" ) );
+
 		// Find and listen to buttons
 		var that = this;
-		$('#btn_admin').click(function(ele){
+		$('#btn_admin').button().click(function(ele){
 			that.setState('admin');
 			toggleBtn(this);
 		});
-		$('#btn_noadmin').click(function(ele){
+		$('#btn_noadmin').button().click(function(ele){
 			that.setState('noadmin');
 			toggleBtn(this);
 		}).attr('disabled', 'disabled');

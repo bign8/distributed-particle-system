@@ -2,7 +2,11 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="/in/admin.css">
+		<link rel="stylesheet" href="/in/jquery-ui-1.10.2.custom.min.css">
+		<link rel="stylesheet" href="/in/prettyCheckable/prettyCheckable.css">
 		<script src="/in/jquery-1.9.1.min.js"></script>
+		<script src="/in/jquery-ui-1.10.2.custom.min.js"></script>
+		<script src="/in/prettyCheckable/prettyCheckable.js"></script>
 		<script src="/in/raphael-2.1.0.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="/in/admin.js"></script>
@@ -17,7 +21,29 @@
 				<p>General Admin Controls</p>
 				<p>
 					<button id="btn_admin">Show Numbers</button>
-					<button id="btn_noadmin">Hide Numbers</button>
+					<button id="btn_noadmin">Hide Numbers</button><br/><br/>
+
+
+					<input type="checkbox" data-label="Display numbers on screens"/><br/>
+					<input type="checkbox" data-label="Animation active"/>
+
+					<p>
+						<label for="amount">maxSpeed:</label>
+						<input type="text" id="amount" style="border: 0; color: #f6931f; font-weight: bold;" />
+						<div id="slider-range-max"></div>
+					</p>
+					
+					<p>
+						<label for="asdf">ballCount:</label>
+						<input type="text" id="asdf" style="border: 0; color: #f6931f; font-weight: bold;" />
+						<div id="slider-range-max-2"></div>
+					</p>
+					
+					<p>
+						<label for="asdfasdf">refreshRate:</label>
+						<input type="text" id="asdfasdf" style="border: 0; color: #f6931f; font-weight: bold;" />
+						<div id="slider-range-max-3"></div>
+					</p>
 				</p>
 			</li>
 			<li>
