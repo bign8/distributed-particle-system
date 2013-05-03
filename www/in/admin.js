@@ -33,43 +33,93 @@ $(document).ready(function() {
 var currentState = 'noadmin';
 Admin = {
 	'initAdmin': function() {
-		$('input[type=checkbox]').prettyCheckable();
 
-		$( "#slider-range-max" ).slider({
-			range: "min",
-			min: 1,
-			max: 10,
-			value: 2,
-			slide: function( event, ui ) {
-				$( "#amount" ).val( ui.value );
+		// Load settings from server
+		socket.emit('loadSettings', undefined, updateSettings);
+
+		// On reset, reload settings from server
+		var reset = $('#btn_reset').button().click(function(){
+			socket.emit('loadSettings', undefined, updateSettings);
+		}).attr('disabled', 'disabled').addClass('ui-state-disabled');
+
+		// Store data to server!
+		var save = $('#btn_save').button().click(function(){
+			console.log('saving');
+
+			var settings = {
+				'active': $('#chk_active').prop('checked'),
+				'ballCount': $('#txt_balls').val(),
+				'maxSpeed': $('#txt_speed').val(),
+				'adminNumbers': $('#chk_isadmin').prop('checked'),
+				'refreshRate': $('#txt_render').val()
+			};
+
+			socket.emit('setSettings', settings);
+		}).attr('disabled', 'disabled').addClass('ui-state-disabled');
+
+		// Setup Sliders
+		var txt_speed = $( "#adj_txt_speed" ).slider({
+			range:'min', min:1, max:10, slide:function( event, ui ) {
+				$( "#txt_speed" ).val( ui.value ).change();
 			}
 		});
-		$( "#amount" ).val( $( "#slider-range-max" ).slider( "value" ) );
-
-		$( "#slider-range-max-2" ).slider({
-			range: "min",
-			min: 1,
-			max: 10000,
-			value: 2,
-			slide: function( event, ui ) {
-				$( "#asdf" ).val( ui.value );
+		var txt_balls = $( "#adj_txt_balls" ).slider({
+			range:'min', min:1, max:50, slide:function( event, ui ) {
+				$( "#txt_balls" ).val( ui.value ).change();
 			}
 		});
-		$( "#asdf" ).val( $( "#slider-range-max-2" ).slider( "value" ) );
-
-		$( "#slider-range-max-3" ).slider({
-			range: "min",
-			min: 10,
-			max: 1000,
-			value: 10,
-			slide: function( event, ui ) {
-				$( "#asdfasdf" ).val( ui.value );
+		var txt_render = $( "#adj_txt_render" ).slider({
+			range:'min', min:10, max:250, slide:function( event, ui ) {
+				$( "#txt_render" ).val( ui.value ).change();
 			}
 		});
-		$( "#asdfasdf" ).val( $( "#slider-range-max-3" ).slider( "value" ) );
+
+		// Setup change handlers
+		$( "#txt_speed" ).spinner().change(function( event ) {
+			txt_speed.slider('option', 'value', $(this).val());
+		});
+		$( "#txt_balls" ).spinner().change(function( event ) {
+			txt_balls.slider('option', 'value', $(this).val());
+		});
+		$( "#txt_render" ).spinner().change(function( event ) {
+			txt_render.slider('option', 'value', $(this).val());
+		});
+		$('.ui-spinner-button').click(function() { $(this).siblings('input').change(); });
+
+		// Handle changes
+		socket.on('updateSettings', updateSettings);
+
+		function updateSettings(settings) {
+			console.log(settings);
+
+			$('#chk_isadmin').prop('checked', settings.adminNumbers);
+			$('#chk_active').prop('checked', settings.active);
+			$('#txt_speed').val(settings.maxSpeed).change();
+			$('#txt_balls').val(settings.ballCount).change();
+			$('#txt_render').val(settings.refreshRate).change();
+
+			txt_speed.slider('option', 'value', settings.maxSpeed);
+			txt_balls.slider('option', 'value', settings.ballCount);
+			txt_render.slider('option', 'value', settings.refreshRate);
+
+			reset.attr('disabled', 'disabled')
+				.removeClass('ui-state-hover')
+				.addClass('ui-state-disabled');
+			save.attr('disabled', 'disabled')
+				.removeClass('ui-state-hover')
+				.addClass('ui-state-disabled');
+		}
+
+		// When modified, enable saving and resetting
+		$('#chk_isadmin, #chk_active, #txt_speed, #txt_balls, #txt_render').change(function(){
+			reset.removeAttr("disabled").removeClass('ui-state-disabled');
+			save.removeAttr("disabled").removeClass('ui-state-disabled');
+		});
+
+		//$('input[type=checkbox]').prettyCheckable();
 
 		// Find and listen to buttons
-		var that = this;
+		/*var that = this;
 		$('#btn_admin').button().click(function(ele){
 			that.setState('admin');
 			toggleBtn(this);
@@ -82,7 +132,7 @@ Admin = {
 		function toggleBtn(that) {
 			$('#btn_admin,#btn_noadmin').removeAttr("disabled");
 			$(that).attr("disabled", "disabled");
-		}
+		}//*/
 	},
 	'setState': function(state) {
 		currentState = state;

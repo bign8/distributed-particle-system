@@ -3,10 +3,10 @@
 	<head>
 		<link rel="stylesheet" href="/in/admin.css">
 		<link rel="stylesheet" href="/in/jquery-ui-1.10.2.custom.min.css">
-		<link rel="stylesheet" href="/in/prettyCheckable/prettyCheckable.css">
+		<!--<link rel="stylesheet" href="/in/prettyCheckable/prettyCheckable.css">-->
 		<script src="/in/jquery-1.9.1.min.js"></script>
 		<script src="/in/jquery-ui-1.10.2.custom.min.js"></script>
-		<script src="/in/prettyCheckable/prettyCheckable.js"></script>
+		<!--<script src="/in/prettyCheckable/prettyCheckable.js"></script>-->
 		<script src="/in/raphael-2.1.0.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="/in/admin.js"></script>
@@ -18,43 +18,41 @@
 		</hgroup>
 		<ul class="adminList">
 			<li>
-				<p>General Admin Controls</p>
+				<h3 class="ui-state-default ui-corner-all ui-helper-clearfix">General Admin Controls</h3>
 				<p>
-					<button id="btn_admin">Show Numbers</button>
-					<button id="btn_noadmin">Hide Numbers</button><br/><br/>
-
-
-					<input type="checkbox" data-label="Display numbers on screens"/><br/>
-					<input type="checkbox" data-label="Animation active"/>
-
+					<input id="chk_isadmin" type="checkbox" />
+					<label for="chk_isadmin">Display numbers on screens</label>
+					<br/>
+					<input id="chk_active" type="checkbox"/>
+					<label for="chk_active">Animation active</label>
 					<p>
-						<label for="amount">maxSpeed:</label>
-						<input type="text" id="amount" style="border: 0; color: #f6931f; font-weight: bold;" />
-						<div id="slider-range-max"></div>
+						<label for="txt_speed">Maximum object speed (x and y directions):</label>
+						<input type="text" id="txt_speed" />
+						<div id="adj_txt_speed"></div>
 					</p>
-					
 					<p>
-						<label for="asdf">ballCount:</label>
-						<input type="text" id="asdf" style="border: 0; color: #f6931f; font-weight: bold;" />
-						<div id="slider-range-max-2"></div>
+						<label for="txt_balls">Max Balls per screen:</label>
+						<input type="text" id="txt_balls" />
+						<div id="adj_txt_balls"></div>
 					</p>
-					
 					<p>
-						<label for="asdfasdf">refreshRate:</label>
-						<input type="text" id="asdfasdf" style="border: 0; color: #f6931f; font-weight: bold;" />
-						<div id="slider-range-max-3"></div>
+						<label for="txt_render">Refresh rate (mills between frame renderings):</label>
+						<input type="text" id="txt_render" />
+						<div id="adj_txt_render"></div>
 					</p>
+					<button id="btn_reset">Reset (Cancel) changes</button>
+					<button id="btn_save">Save changes</button>
 				</p>
 			</li>
 			<li>
-				<p>Screen Location Control</p>
+				<h3 class="ui-state-default ui-corner-all ui-helper-clearfix">Screen Location Control</h3>
 				<div id="screenLayout"></div>
 				<button id="btn_clear">Clear screen</button>
 				<button id="btn_store">Store configuration</button>
 				<button id="btn_reset">Reset configuration</button>
 			</li>
 			<li>
-				<h4>Know issues:</h4>
+				<h3 class="ui-state-default ui-corner-all ui-helper-clearfix">Know issues:</h3>
 				<ul>
 					<li>Issues with lost connections, re-numbered frames</li>
 					<li>Gaps can accuire over many screen manipulations</li>

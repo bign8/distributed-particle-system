@@ -1,5 +1,7 @@
-// see http://www.html5canvastutorials.com/tutorials/html5-canvas-images/
-// http://socket.io/#how-to-use
+/*
+Notes:
+	keeping all commands withing function to not effect outer document DOM
+*/
 
 $(document).ready(function() {
 	var socket = io.connect('/client'), 
@@ -11,8 +13,9 @@ $(document).ready(function() {
         	'ballCount': 1,
         	'maxSpeed': 4,
         	'adminNumbers': false,
-        	'refreshRate': 10,
-        	'prettyNum': sessionStorage.prettyNum||'...'
+        	'refreshRate': 15,
+        	'prettyNum': sessionStorage.prettyNum||'...',
+        	'appGUID': undefined
         };
 	
 	// ensure canvas is pretty + to scale
@@ -24,7 +27,8 @@ $(document).ready(function() {
 			socket.emit('resetSize', {
 				'width': canvas.width,
 				'height': canvas.height,
-				'full': fullScreenApi.isFullScreen()
+				'full': fullScreenApi.isFullScreen(),
+				'GUID': settings.appGUID
 			});
 			drawStuff(true);
 		}
@@ -39,47 +43,46 @@ $(document).ready(function() {
 	// Socket communication managment
 	socket.on('connect', function () {
 		console.log('Connected to socket');
-		resizeCanvas(true);
 
 		// Get or verify Guids
 		socket.emit('checkGUID', sessionStorage.appGUID, function(obj) {
 			console.log(obj);
 			sessionStorage.appGUID = obj.GUID;
 			sessionStorage.prettyNum = settings.prettyNum = obj.prettyNum;
+			$('#adminNum').html(settings.prettyNum);
+			resizeCanvas(true);
 		});
 	});
 	socket.on('assignSettings', function (newSettings) {
-		// deal with ball count - this should properlay scale our count of balls to mimic the system
-		var newBallCount = Math.ceil( newSettings.ballCount * ballArray.length / settings.ballCount );
-		console.log('New ball count ' + newBallCount);
+		console.log(newSettings);
+
+		// deal with ball count - scaling screen count of balls to mimic the system
+		if (settings.ballCount != newSettings.ballCount) {
+			var newBallCount = Math.ceil( newSettings.ballCount * ballArray.length / settings.ballCount );
+			ballArray = ballArray.slice(0, newBallCount); // contract
+			for ( var i=ballArray.length; i < newBallCount; i++) ballArray[i] = createBall(); // expand
+			console.log('New ball count ' + newBallCount);
+		}
 
 		// deal with active and refresh rate
+		if (newSettings.refreshRate != settings.refreshRate || newSettings.active != settings.active) {
+			clearInterval(renderProcess);
+			if (newSettings.active) renderProcess = setInterval(ballPhysics, newSettings.refreshRate)
+		}
 
-		// deal with showing admin numbers
+		// show/hide admin numbers
 		if (newSettings.adminNumbers) {
 			$('#adminNum').html(settings.prettyNum).fadeIn();
 		} else {
 			$('#adminNum').fadeOut();
 		}
 
-		settings = newSettings; // save new settings
+		// hold onto persistant settings and save
+		newSettings.prettyNum = settings.prettyNum;
+		newSettings.GUID = settings.GUID;
+		settings = newSettings;
 	});
 
-	// Remove once settings object passing has been put in place
-	/*socket.on('setState', function (state) {
-		console.log(state);
-		// session storage, setting guid
-		switch (state.state) {
-			case 'admin':
-				$('#adminNum').html(settings.prettyNum).fadeIn();
-				break;
-			case 'noadmin':
-				$('#adminNum').fadeOut();
-				break;
-		}
-		
-	});//*/
-	
 	// Small full screen button for awesomeness
 	if (fullScreenApi.supportsFullScreen) {
 		var fsEle = $('body');
@@ -130,9 +133,8 @@ $(document).ready(function() {
 	}
 	
 	// Initialize array of balls (turn into function and use with update settings)
-	var ballArray = [];
-	for (var i=0; i<settings.ballCount; i++){
-		ballArray[i] = {
+	function createBall() {
+		return {
 			x:Math.random()*window.innerWidth,
 			y:Math.random()*window.innerHeight,
 			radius:Math.floor(Math.random()*10)+10,
@@ -141,8 +143,14 @@ $(document).ready(function() {
 			color:'#'+Math.floor(Math.random()*11184810).toString(16) // full color span multiplyer 16777215
 		};
 	}
+
+	var ballArray = [createBall()];
+	/*
+	for (var i=0; i<settings.ballCount; i++){
+		ballArray[i] = createBall();
+	}//*/
 	
 	// Start the animation
-	setInterval(ballPhysics, settings.refreshRate);
+	var renderProcess = setInterval(ballPhysics, settings.refreshRate);
 });
 

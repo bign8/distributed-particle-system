@@ -23,32 +23,34 @@ var admin = io.of('/admin');
 var client = io.of('/client');
 
 // combine and/or remove some of the below objects if possible
-var clients = {}; // list of connected clients
-var uniqueClients = {};
-var screens = {}; // list of connected screen sizes
+//var clients = {}; // list of connected clients, by socketID
+var uniqueClients = {}; // list of connected clients, by GUID with prettyNum
+var screens = {}; // list of connected screen sizes, by socketID
 var admins  = {}; // list of connected admins
 
 // Client settings
 var prettyNum = 1;
 var settings = {
 	'active': true,
-	'ballCount': 1,
+	'ballCount': 5,
 	'maxSpeed': 4,
 	'adminNumbers': false,
-	'refreshRate': 10,
-	'prettyNum': '...'
+	'refreshRate': 15,
+	'prettyNum': '...',
+	'appGUID': undefined
 };
 
 client.on('connection', function(clientSocket) {
 	// List of live connected clients - http://bit.ly/13mp9cO
-	clients[clientSocket.id] = clientSocket;
+	//clients[clientSocket.id] = clientSocket;
 	clientSocket.on('disconnect', function() {
-		delete clients[clientSocket.id];
+		//delete clients[clientSocket.id];
 		delete screens[clientSocket.id];
 		admin.emit('leaveScreen', clientSocket.id);
 	});
 	
 	clientSocket.on('resetSize', function(screen) {
+		// this information now includes GUID - use unique clients object instead of screens
 		screens[clientSocket.id] = screen;
 		screen.id = clientSocket.id;
 		admin.emit('resizeFrame', screen);
@@ -66,6 +68,8 @@ client.on('connection', function(clientSocket) {
 		}
 		fn({'GUID':GUID, 'prettyNum': tempNum});
 	});
+
+	clientSocket.emit('assignSettings', settings);
 });
 admin.on('connection', function(adminSocket) {
 	// list of live connected admins - http://bit.ly/13mp9cO
@@ -75,13 +79,19 @@ admin.on('connection', function(adminSocket) {
 	});
 	console.log('Number of admins: ' + Object.keys(admins).length);
 	
-	adminSocket.emit('loadScreens', screens);
-	
-
-	adminSocket.on('setSettings', function(newSettings) {
+	adminSocket.on('setSettings', function(newSettings, fn) {
 		settings = newSettings;
 		client.emit('assignSettings', newSettings);
+		admin.emit('updateSettings', newSettings); // update all admins
 	});
+
+	adminSocket.on('loadSettings', function(undefined, fn) {
+		fn(settings);
+	});
+
+	// this may need to be modified
+	adminSocket.emit('loadScreens', screens);
+	
 	/*adminSocket.on('setState', function(state) {
 		console.log(state);
 		client.socket(state.id).emit('setState', state)
