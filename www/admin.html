@@ -2,11 +2,9 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="/in/admin.css">
-		<link rel="stylesheet" href="/in/jquery-ui-1.10.2.custom.min.css">
-		<!--<link rel="stylesheet" href="/in/prettyCheckable/prettyCheckable.css">-->
-		<script src="/in/jquery-1.9.1.min.js"></script>
-		<script src="/in/jquery-ui-1.10.2.custom.min.js"></script>
-		<!--<script src="/in/prettyCheckable/prettyCheckable.js"></script>-->
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+		<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 		<script src="/in/raphael-2.1.0.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="/in/admin.js"></script>
@@ -20,11 +18,8 @@
 			<li>
 				<h3 class="ui-state-default ui-corner-all ui-helper-clearfix">General Admin Controls</h3>
 				<p>
-					<input id="chk_isadmin" type="checkbox" />
-					<label for="chk_isadmin">Display numbers on screens</label>
-					<br/>
-					<input id="chk_active" type="checkbox"/>
-					<label for="chk_active">Animation active</label>
+					<input id="chk_isadmin" type="checkbox" /><label for="chk_isadmin">Display numbers on screens</label>
+					<input id="chk_active" type="checkbox"/><label for="chk_active">Animation active</label>
 					<p>
 						<label for="txt_speed">Maximum object speed (x and y directions):</label>
 						<input type="text" id="txt_speed" />

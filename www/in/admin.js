@@ -37,6 +37,10 @@ Admin = {
 		// Load settings from server
 		socket.emit('loadSettings', undefined, updateSettings);
 
+		// Format checkboxes nice
+		var chkBoxes = $('#chk_active,#chk_isadmin').button();
+		//$('#chk_isadmin').button();
+
 		// On reset, reload settings from server
 		var reset = $('#btn_reset').button().click(function(){
 			socket.emit('loadSettings', undefined, updateSettings);
@@ -97,6 +101,8 @@ Admin = {
 			$('#txt_speed').val(settings.maxSpeed).change();
 			$('#txt_balls').val(settings.ballCount).change();
 			$('#txt_render').val(settings.refreshRate).change();
+
+			chkBoxes.button( 'refresh' );
 
 			txt_speed.slider('option', 'value', settings.maxSpeed);
 			txt_balls.slider('option', 'value', settings.ballCount);
