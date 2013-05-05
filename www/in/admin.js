@@ -33,6 +33,7 @@ $(document).ready(function() {
 var currentState = 'noadmin';
 Admin = {
 	'initAdmin': function() {
+		$('.adminList').accordion({collapsible: true, heightStyle: "content", active: false});
 
 		// Load settings from server
 		socket.emit('loadSettings', undefined, updateSettings);
@@ -121,24 +122,6 @@ Admin = {
 			reset.removeAttr("disabled").removeClass('ui-state-disabled');
 			save.removeAttr("disabled").removeClass('ui-state-disabled');
 		});
-
-		//$('input[type=checkbox]').prettyCheckable();
-
-		// Find and listen to buttons
-		/*var that = this;
-		$('#btn_admin').button().click(function(ele){
-			that.setState('admin');
-			toggleBtn(this);
-		});
-		$('#btn_noadmin').button().click(function(ele){
-			that.setState('noadmin');
-			toggleBtn(this);
-		}).attr('disabled', 'disabled');
-
-		function toggleBtn(that) {
-			$('#btn_admin,#btn_noadmin').removeAttr("disabled");
-			$(that).attr("disabled", "disabled");
-		}//*/
 	},
 	'setState': function(state) {
 		currentState = state;
@@ -159,9 +142,15 @@ ScreenManager = {
 			o = this.obj = $('#' + obj),
 			p = this.R = Raphael(obj, this.obj.width(), this.obj.height());
 		
+		this.obj.css('padding-left', 0);
 		this.cx = (p.width-55)/2+55;
 		this.cy = p.height/2;
 		
+		var dumbCount=2;
+		$('#btn_clear, #btn_store, #btn_reset').button().click(function(){
+			alert('Not implemenented yet' + (new Array(dumbCount++).join('!')) );
+		});
+
 		this.unLoaded = p.set();
 		this.unLoadedAttr = {
 			'clip-rect':('0 5 '+p.width+' '+(p.height-10))

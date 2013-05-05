@@ -1,25 +1,25 @@
 /*
 Notes:
-	keeping all commands withing function to not effect outer document DOM
+	keeping all commands within function to not effect outer document DOM
 */
 
 $(document).ready(function() {
 	var socket = io.connect('/client'), 
 		resizeTimeout,
 		canvas = $('#canvas').get(0),
-        context = canvas.getContext('2d'),
-        settings = {
-        	'active': true,
-        	'ballCount': 1,
-        	'maxSpeed': 4,
-        	'adminNumbers': false,
-        	'refreshRate': 15,
-        	'prettyNum': sessionStorage.prettyNum||'...',
-        	'appGUID': undefined
-        };
+		context = canvas.getContext('2d'),
+		settings = {
+			'active': true,
+			'ballCount': 1,
+			'maxSpeed': 4,
+			'adminNumbers': false,
+			'refreshRate': 15,
+			'prettyNum': sessionStorage.prettyNum||'...',
+			'appGUID': undefined
+		};
 	
 	// ensure canvas is pretty + to scale
-    function resizeCanvas(force) {
+	function resizeCanvas(force) {
 		if (canvas.width != window.innerWidth || canvas.height != window.innerHeight || force) {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
@@ -32,9 +32,9 @@ $(document).ready(function() {
 			});
 			drawStuff(true);
 		}
-    }
+	}
 	
-    // resize the canvas to fill browser window dynamically
+	// resize the canvas to fill browser window dynamically
 	$(window).resize(function() {
 		clearTimeout(resizeTimeout);
 		resizeTimeout = setTimeout(resizeCanvas, 1000);
@@ -134,23 +134,18 @@ $(document).ready(function() {
 	
 	// Initialize array of balls (turn into function and use with update settings)
 	function createBall() {
+		var radius = Math.floor(Math.random()*10)+10;
 		return {
-			x:Math.random()*window.innerWidth,
-			y:Math.random()*window.innerHeight,
-			radius:Math.floor(Math.random()*10)+10,
-			dx:Math.floor(Math.random()*2*settings.maxSpeed)-settings.maxSpeed,
-			dy:Math.floor(Math.random()*2*settings.maxSpeed)-settings.maxSpeed,
-			color:'#'+Math.floor(Math.random()*11184810).toString(16) // full color span multiplyer 16777215
+			x: Math.random()*(window.innerWidth-radius*2)+radius,
+			y: Math.random()*(window.innerHeight-radius*2)+radius,
+			radius: radius,
+			dx: Math.floor(Math.random()*2*settings.maxSpeed)-settings.maxSpeed,
+			dy: Math.floor(Math.random()*2*settings.maxSpeed)-settings.maxSpeed,
+			color: '#'+Math.floor(Math.random()*11184810).toString(16) // full color span multiplyer 16777215
 		};
 	}
 
-	var ballArray = [createBall()];
-	/*
-	for (var i=0; i<settings.ballCount; i++){
-		ballArray[i] = createBall();
-	}//*/
-	
 	// Start the animation
+	var ballArray = [createBall()]; // start with single ball
 	var renderProcess = setInterval(ballPhysics, settings.refreshRate);
 });
-

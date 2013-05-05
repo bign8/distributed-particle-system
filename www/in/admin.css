@@ -1,6 +1,11 @@
 /* overall cleanup */
 body, button { font: 12pt/1 Helvetica, "Comic Sans", "Comic Sans MS", cursive }
 hgroup { text-align: center }
+input[type='text'] {
+	border: 0; color: #f6931f; font-weight: bold; width: 50px
+}
+h3 { padding: 5px; margin-top:12px; }
+
 .adminList {
 	padding:0;
 	list-style: none;
@@ -9,20 +14,15 @@ hgroup { text-align: center }
 	min-width: 400px;
 	margin: 0 auto;
 }
-.adminList > li {
-	border:solid 1px black;
-	margin-bottom: 10px;
-	padding: 0 10px 10px 10px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
+.ui-widget { font-size: 80% !important }
+
+#btn_reset,#btn_save { 
+	float: right;
+	margin-left: 5px;
 }
 #screenLayout {
-	display:block;
+	display: block;
 	height: 200px;
-	width: 100%;
+	padding: 0 2.2em;  /*mimic accordion*/ 
+	margin-bottom: 10px;
 }
-.ui-widget { font-size: 62.5% !important }
-input[type='text'] {
-	border: 0; color: #f6931f; font-weight: bold; width: 50px
-}
-h3 { padding: 5px; margin-top:12px; }
