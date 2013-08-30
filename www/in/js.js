@@ -3,21 +3,45 @@ Notes:
 	keeping all commands within function to not effect outer document DOM
 */
 
+// for development
+var socket, resizeTimeout, canvas, context, settings;
+
+var DisParSys = (function() {
+	var socket = 'hidden',
+		canvas = 'hidden',
+		context = 'hidden',
+		settings = {};
+
+	return {
+		'init': function() {
+			// initial things here
+			socket = io.connect('/client');
+			canvas = $('#canvas').get(0);
+			context = canvas.getContext('2d');
+		}, 
+		'resize': function() {
+			// resize event here
+			console.log(canvas);
+		}
+	};
+})();
+
 $(document).ready(function() {
-	var socket = io.connect('/client'), 
-		resizeTimeout,
-		canvas = $('#canvas').get(0),
-		context = canvas.getContext('2d'),
-		settings = {
-			'active': true,
-			'ballCount': 1,
-			'maxSpeed': 4,
-			'adminNumbers': false,
-			'refreshRate': 15,
-			'prettyNum': sessionStorage.prettyNum||'...',
-			'appGUID': undefined
-		};
 	
+	socket = io.connect('/client');
+	resizeTimeout;
+	canvas = $('#canvas').get(0);
+	context = canvas.getContext('2d');
+	settings = {
+		'active': true,
+		'ballCount': 1,
+		'maxSpeed': 4,
+		'adminNumbers': false,
+		'refreshRate': 15,
+		'prettyNum': sessionStorage.prettyNum||'...',
+		'appGUID': undefined
+	};
+
 	// ensure canvas is pretty + to scale
 	function resizeCanvas(force) {
 		if (canvas.width != window.innerWidth || canvas.height != window.innerHeight || force) {
@@ -101,8 +125,9 @@ $(document).ready(function() {
 	 * you resize the browser window and the canvas goes will be cleared.
 	 */
 	function ballPhysics(){
+		var ball;
 		for (i=0; i<ballArray.length; i++) {
-			var ball = ballArray[i];
+			ball = ballArray[i];
 
 			if ( ball.y>window.innerHeight-ball.radius ||  (ball.y<ball.radius && ball.dy < 0) ) {
 				ball.dx += Math.floor(Math.random()*0.2*settings.maxSpeed)-0.1*settings.maxSpeed; // fun bounce
@@ -117,10 +142,11 @@ $(document).ready(function() {
 			ball.x += ball.dx;
 			ball.y += ball.dy;
 		}
+		ball = null;
 		drawStuff();
 	}
 	function drawStuff(isResize) {
-		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+		context.clearRect(0, 0, canvas.width, canvas.height);
 
 		// Draws each ball on the canvas
 		for (var i=0; i<ballArray.length; i++){
