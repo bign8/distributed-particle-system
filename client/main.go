@@ -2,7 +2,10 @@ package main
 
 import "github.com/gopherjs/gopherjs/js"
 
-var canvas = js.Global.Get("document").Call("getElementById", "canvas")
+var (
+	canvas  = js.Global.Get("document").Call("getElementById", "canvas")
+	context = canvas.Call("getContext", "2d")
+)
 
 func resize(fn *js.Object) {
 	print("rezising shiz")
