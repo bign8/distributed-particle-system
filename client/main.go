@@ -92,8 +92,8 @@ func draw() {
 			var d = math.Hypot(a[0]-b[0], a[1]-b[1])
 			if d < 200 {
 				in := js.InternalObject(art.Map(d, 0, 200, 1, 0)).Call("toString").String()
-				print(in)
-				panic("eek")
+				// print(in)
+				// panic("eek")
 				context.Set("strokeStyle", "rgba(150, 150, 150, "+in+")")
 				context.Call("moveTo", a[0], a[1])
 				context.Call("lineTo", b[0], b[1])
@@ -114,7 +114,7 @@ func main() {
 	handle(domClose, "click", close)
 
 	// Setup Points
-	var density = int(domCanvas.Get("width").Float() * domCanvas.Get("height").Float() / 1e4)
+	var density = int(domCanvas.Get("width").Float() * domCanvas.Get("height").Float() / 1e5)
 	dots = make([]*art.Dot, density)
 	rander := func() float64 {
 		return js.Global.Get("Math").Call("random").Float()
