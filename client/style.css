@@ -57,19 +57,19 @@ body {
 	top: 0;
 	width: 100%;
 	height: 100%;
-	background-color: rgba(0,0,0,0.5);
+	background-color: rgba(0, 0, 0, 0.3);
 }
-.dialog.hide {
+.hide {
 	display: none;
 }
 .dialog .content {
 	display: block;
-	background-color: #fff;
+	background-color: rgba(255, 255, 255, 0.7);
+	position: absolute;
 	height: 80%;
 	width: 80%;
 	left: 10%;
 	right: 10%;
-	position: absolute;
 	top: 10%;
 	bottom: 10%;
 	border-radius: 20px;
@@ -77,13 +77,23 @@ body {
 	box-sizing: border-box;
 	border: 1px solid #000;
 }
-.click {
+.dialog .content button {
 	color: #aaa;
 	background-color: transparent;
-	position: absolute;
 	font-size: 20px;
 	line-height: 20px;
 	z-index: 2;
 	border: none;
 	outline: none;
+	height: 20px;
+	width: 20px;
+	position: absolute;
+	right: 10px;
+	cursor: pointer;
+}
+.dialog .content button.close {
+	top: 10px;
+}
+.dialog .content button.save {
+	bottom: 10px;
 }
