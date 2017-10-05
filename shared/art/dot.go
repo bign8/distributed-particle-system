@@ -12,7 +12,7 @@ func NewDot(gen func() float64, width, height, size float64) *Dot {
 	return &Dot{
 		Position: NewVector(gen()*width, gen()*height),
 		Velocity: NewRandom2DVector(gen()).Scale(gen()),
-		Size:     gen() * size,
+		Size:     gen()*size + size,
 	}
 }
 

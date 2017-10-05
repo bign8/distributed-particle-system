@@ -74,12 +74,19 @@ func draw() {
 	// Drawing + Updating Circles: O(n)
 	for _, dot := range dots {
 		point := dot.Step()
-		// TODO: do edge bouncing
-		// // Absolute values allow for resizes, pushing particles back into view
-		// if      (this.position.x <= this.size) this.velocity.x = M.abs(this.velocity.x);
-		// else if (this.position.y <= this.size) this.velocity.y = M.abs(this.velocity.y);
-		// else if (this.position.x >= canvas.width - this.size) this.velocity.x = -M.abs(this.velocity.x);
-		// else if (this.position.y > canvas.height - this.size) this.velocity.y = -M.abs(this.velocity.y);
+
+		// Absolute values allow for resizes, pushing particles back into view
+		if point[0] <= dot.Size {
+			dot.Velocity[0] = math.Abs(dot.Velocity[0])
+		} else if point[1] <= dot.Size {
+			dot.Velocity[1] = math.Abs(dot.Velocity[1])
+		} else if point[0] >= domCanvas.Get("width").Float()-dot.Size {
+			dot.Velocity[0] = -math.Abs(dot.Velocity[0])
+		} else if point[1] >= domCanvas.Get("height").Float()-dot.Size {
+			dot.Velocity[1] = -math.Abs(dot.Velocity[1])
+		}
+
+		// Draw dots
 		context.Call("beginPath")
 		context.Call("arc", point[0], point[1], dot.Size, 0, 6.283185307179586)
 		context.Call("fill")
@@ -91,10 +98,12 @@ func draw() {
 			a, b := dots[i].Position, dots[j].Position
 			var d = math.Hypot(a[0]-b[0], a[1]-b[1])
 			if d < 200 {
-				in := js.InternalObject(art.Map(d, 0, 200, 1, 0)).Call("toString").String()
+				temp := art.Map(d, 0, 200, 1, 0)
+				in := js.InternalObject(temp).Call("toFixed", 2).String()
+				// print(in, d)
 				// print(in)
 				// panic("eek")
-				context.Set("strokeStyle", "rgba(150, 150, 150, "+in+")")
+				context.Set("strokeStyle", "rgba(0, 0, 0, "+in+")")
 				context.Call("moveTo", a[0], a[1])
 				context.Call("lineTo", b[0], b[1])
 				context.Call("stroke")
@@ -114,7 +123,7 @@ func main() {
 	handle(domClose, "click", close)
 
 	// Setup Points
-	var density = int(domCanvas.Get("width").Float() * domCanvas.Get("height").Float() / 1e5)
+	var density = int(domCanvas.Get("width").Float() * domCanvas.Get("height").Float() / 3e4)
 	dots = make([]*art.Dot, density)
 	rander := func() float64 {
 		return js.Global.Get("Math").Call("random").Float()
