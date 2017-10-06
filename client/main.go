@@ -100,10 +100,8 @@ func draw() {
 			if d < 200 {
 				temp := art.Map(d, 0, 200, 1, 0)
 				in := js.InternalObject(temp).Call("toFixed", 2).String()
-				// print(in, d)
-				// print(in)
-				// panic("eek")
 				context.Set("strokeStyle", "rgba(0, 0, 0, "+in+")")
+				context.Call("beginPath")
 				context.Call("moveTo", a[0], a[1])
 				context.Call("lineTo", b[0], b[1])
 				context.Call("stroke")
@@ -114,6 +112,11 @@ func draw() {
 	domWindow.Call("requestAnimationFrame", draw)
 }
 
+func mouse(o *js.Object) {
+	dots[1].Position[0] = o.Get("clientX").Float() * 2
+	dots[1].Position[1] = o.Get("clientY").Float() * 2
+}
+
 func main() {
 	// Bind handlers
 	resize(nil)
@@ -121,6 +124,7 @@ func main() {
 	handle(domOpen, "click", open)
 	handle(domSave, "click", save)
 	handle(domClose, "click", close)
+	handle(domWindow, "mousemove", mouse)
 
 	// Setup Points
 	var density = int(domCanvas.Get("width").Float() * domCanvas.Get("height").Float() / 3e4)
