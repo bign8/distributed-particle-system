@@ -10,9 +10,7 @@ import (
 )
 
 var (
-	// height, width            = 0, 0
-	dots []*art.Dot
-
+	dots      *art.Dots
 	domWindow = js.Global.Get("window")
 	domDoc    = js.Global.Get("document")
 	domOpen   = get("link")
@@ -44,10 +42,9 @@ func resize(o *js.Object) {
 	domCanvas.Get("style").Set("width", strconv.Itoa(w)+"px")
 	domCanvas.Set("height", h*2)
 	domCanvas.Get("style").Set("height", strconv.Itoa(h)+"px")
-	// if w != width || h != height {
-	// 	print("updating size", w, h)
-	// 	width, height = w, h
-	// }
+	if dots != nil {
+		dots.SetSize(float64(w*2), float64(h*2))
+	}
 }
 
 func open(o *js.Object) {
@@ -69,52 +66,30 @@ func close(o *js.Object) {
 }
 
 func draw() {
-	context.Call("clearRect", 0, 0, domCanvas.Get("width"), domCanvas.Get("height"))
+	context.Call("clearRect", 0, 0, dots.Width, dots.Height)
+	dots.Step()
 
-	// Drawing + Updating Circles: O(n)
-	for _, dot := range dots {
-		point := dot.Step()
-
-		// Absolute values allow for resizes, pushing particles back into view
-		if point[0] <= dot.Size {
-			dot.Velocity[0] = math.Abs(dot.Velocity[0])
-		} else if point[1] <= dot.Size {
-			dot.Velocity[1] = math.Abs(dot.Velocity[1])
-		} else if point[0] >= domCanvas.Get("width").Float()-dot.Size {
-			dot.Velocity[0] = -math.Abs(dot.Velocity[0])
-		} else if point[1] >= domCanvas.Get("height").Float()-dot.Size {
-			dot.Velocity[1] = -math.Abs(dot.Velocity[1])
-		}
-
-		// Draw dots
+	// Drawing + Updating Circles
+	dots.ForEach(func(dot *art.Dot) {
 		context.Call("beginPath")
-		context.Call("arc", point[0], point[1], dot.Size, 0, 6.283185307179586)
+		context.Call("arc", dot.Position[0], dot.Position[1], dot.Size, 0, 6.283185307179586)
 		context.Call("fill")
-	}
+	})
 
-	// Drawing Lines: Worst = O(n*n), Average = O(n*log(n)), Best = O(n)
-	for i := 0; i < len(dots); i++ {
-		for j := i + 1; j < len(dots); j++ {
-			a, b := dots[i].Position, dots[j].Position
-			var d = math.Hypot(a[0]-b[0], a[1]-b[1])
-			if d < 200 {
-				temp := art.Map(d, 0, 200, 1, 0)
-				in := js.InternalObject(temp).Call("toFixed", 2).String()
-				context.Set("strokeStyle", "rgba(0, 0, 0, "+in+")")
-				context.Call("beginPath")
-				context.Call("moveTo", a[0], a[1])
-				context.Call("lineTo", b[0], b[1])
-				context.Call("stroke")
-			}
+	// Drawing Lines
+	dots.ForEachPair(func(a, b art.Vector) {
+		if d := math.Hypot(a[0]-b[0], a[1]-b[1]); d < 200 {
+			temp := art.Map(d, 0, 200, 1, 0)
+			in := js.InternalObject(temp).Call("toString").String()
+			context.Set("strokeStyle", "rgba(0, 0, 0, "+in+")")
+			context.Call("beginPath")
+			context.Call("moveTo", a[0], a[1])
+			context.Call("lineTo", b[0], b[1])
+			context.Call("stroke")
 		}
-	}
+	})
 
 	domWindow.Call("requestAnimationFrame", draw)
-}
-
-func mouse(o *js.Object) {
-	dots[1].Position[0] = o.Get("clientX").Float() * 2
-	dots[1].Position[1] = o.Get("clientY").Float() * 2
 }
 
 func main() {
@@ -124,31 +99,26 @@ func main() {
 	handle(domOpen, "click", open)
 	handle(domSave, "click", save)
 	handle(domClose, "click", close)
-	handle(domWindow, "mousemove", mouse)
 
 	// Setup Points
-	var density = int(domCanvas.Get("width").Float() * domCanvas.Get("height").Float() / 3e4)
-	dots = make([]*art.Dot, density)
+	var density = int(domCanvas.Get("width").Float() * domCanvas.Get("height").Float() / 1e4)
 	rander := func() float64 {
 		return js.Global.Get("Math").Call("random").Float()
 	}
-	for i := 0; i < density; i++ {
-		dots[i] = art.NewDot(rander, domCanvas.Get("width").Float(), domCanvas.Get("height").Float(), 5)
-	}
+	height := domCanvas.Get("height").Float()
+	width := domCanvas.Get("width").Float()
+	dots = art.NewDots(rander, width, height, 5, density)
 
 	// Pre-configure context
 	context.Set("lineWidth", 0.5)
 	context.Set("fillStyle", "rgb(150, 150, 150)")
 	domWindow.Call("requestAnimationFrame", draw)
 
-	// js.Global.Get("document").Call("write", "Hello world!")
 	js.Global.Set("dps", map[string]interface{}{
 		"dialog": domDialog,
 		"test": func() int {
 			return js.Global.Get("Date").Call("now").Int()
 		},
-		"rand": func() float64 {
-			return js.Global.Get("Math").Call("random").Float()
-		},
+		"rand": rander,
 	})
 }
