@@ -17,3 +17,6 @@ npm-debug.log
 node_modules
 
 client/client.js*
+
+vendor
+gin-bin
