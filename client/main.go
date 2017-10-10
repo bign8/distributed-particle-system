@@ -42,6 +42,7 @@ func resize(o *js.Object) {
 	domCanvas.Get("style").Set("width", strconv.Itoa(w)+"px")
 	domCanvas.Set("height", h*2)
 	domCanvas.Get("style").Set("height", strconv.Itoa(h)+"px")
+	context.Set("fillStyle", "rgb(150, 150, 150)") // this gets reset for some reason
 	if dots != nil {
 		dots.SetSize(float64(w*2), float64(h*2))
 	}
@@ -105,6 +106,7 @@ func main() {
 	rander := func() float64 {
 		return js.Global.Get("Math").Call("random").Float()
 	}
+	print("nodes", density)
 	height := domCanvas.Get("height").Float()
 	width := domCanvas.Get("width").Float()
 	dots = art.NewDots(rander, width, height, 5, density)
