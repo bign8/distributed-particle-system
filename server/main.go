@@ -56,16 +56,27 @@ func (c *core) register() (string, func()) {
 func (c *core) brain(w http.ResponseWriter, r *http.Request) {
 	id, done := c.register()
 	defer done()
-	log.Printf("Headers: %#v", r.Header)
 	conn, err := upgrader.Upgrade(w, r, http.Header{
-		"dps-id": {id},
+		"dps-id": {id}, // for debugging more than usability
 	})
-	check(err)
-	conn.WriteJSON(id)
-	for {
-		messageType, p, err := conn.ReadMessage()
-		check(err)
-		check(conn.WriteMessage(messageType, p))
+	if err != nil {
+		http.Error(w, "could not upgrade", http.StatusBadRequest)
+		return
+	}
+	var v struct {
+		Fn   string      `json:"fn"`
+		Data interface{} `json:"data,omitempty"`
+	}
+	for err = conn.ReadJSON(&v); err == nil; err = conn.ReadJSON(&v) {
+		switch v.Fn {
+		case "id":
+			v.Data = id
+		default:
+			fmt.Printf("Unknown Msg: %#v\n", v)
+			continue
+		}
+		conn.WriteJSON(v)
+		v.Data = nil
 	}
 }
 

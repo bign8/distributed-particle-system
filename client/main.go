@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/gopherjs/gopherjs/js"
+	"github.com/gopherjs/websocket/websocketjs"
 
 	"github.com/bign8/distributed-particle-system/client/strconv"
 	"github.com/bign8/distributed-particle-system/shared/art"
@@ -116,11 +117,34 @@ func main() {
 	context.Set("fillStyle", "rgb(150, 150, 150)")
 	domWindow.Call("requestAnimationFrame", draw)
 
+	// Configuration server ws
+	wsHost := domDoc.Get("location").Get("origin").Call("replace", "http", "ws").String()
+	ws, _ := websocketjs.New(wsHost + "/api/brain") // TODO handle error
+	ws.AddEventListener("open", false, func(o *js.Object) {
+		ws.Send(`{"fn": "id"}`)
+	})
+	ws.AddEventListener("message", false, func(o *js.Object) {
+		obj := js.Global.Get("JSON").Call("parse", o.Get("data"))
+		switch obj.Get("fn").String() {
+		case "id":
+			print("my id is:", obj.Get("data").String())
+		default:
+			print("unknown msg", obj)
+		}
+	})
+	ws.AddEventListener("close", false, func(o *js.Object) {
+		print("close", o)
+	})
+	ws.AddEventListener("error", false, func(o *js.Object) {
+		print("error", o)
+	})
+
 	js.Global.Set("dps", map[string]interface{}{
 		"dialog": domDialog,
 		"test": func() int {
 			return js.Global.Get("Date").Call("now").Int()
 		},
 		"rand": rander,
+		"ws":   ws,
 	})
 }
