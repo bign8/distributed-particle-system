@@ -91,12 +91,15 @@ func (c *core) brain(w http.ResponseWriter, r *http.Request) {
 // }
 
 func main() {
-	server := &core{
+	serv := &core{
 		memory: make(map[string]bool),
 	}
-	http.HandleFunc("/api/brain", server.brain)
-	// http.HandleFunc("/api/admin", server.admin)
+	http.HandleFunc("/api/brain", serv.brain)
+	// http.HandleFunc("/api/admin", serv.admin)
 	http.Handle("/", http.FileServer(http.Dir("./client")))
+
+	test := &server{}
+	test.run()
 
 	flag.Parse()
 	port := fmt.Sprintf(":%d", *portInt)

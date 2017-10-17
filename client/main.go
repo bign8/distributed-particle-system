@@ -67,7 +67,8 @@ func close(o *js.Object) {
 	o.Call("preventDefault")
 }
 
-func draw() {
+func draw(ms *js.Object) {
+	// print(ms.Float())
 	context.Call("clearRect", 0, 0, dots.Width, dots.Height)
 	dots.Step()
 
