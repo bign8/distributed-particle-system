@@ -82,6 +82,9 @@ func (s *Sock) start() error {
 			s.att = 0
 			s.err = nil
 		} else {
+			var delay int
+			delay, s.att = retryDelay(s.att)
+			time.Sleep(time.Duration(delay))
 			s.start() // TODO: trap error
 		}
 	}, func(subject string, data []byte) {
