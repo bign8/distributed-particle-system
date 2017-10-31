@@ -1,6 +1,6 @@
 package main
 
-//go:generate gopherjs build -m -o client.js .
+//go:generate gopherjs build -m -o ../client.js .
 
 import (
 	"math"

@@ -1,8 +1,8 @@
 PROJ=github.com/bign8/distributed-particle-system
 
 all:
-	go generate ./...
-	go build
+	go generate -v ./...
+	go build -v
 	./distributed-particle-system
 .PHONY=all
 
