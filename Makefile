@@ -1,6 +1,9 @@
 PROJ=github.com/bign8/distributed-particle-system
 
-all: client/client.js
+all:
+	go generate ./...
+	go build
+	./distributed-particle-system
 .PHONY=all
 
 clean:
