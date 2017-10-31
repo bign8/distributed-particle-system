@@ -13,6 +13,7 @@ import (
 // - GET  /api/ps/<ps_id> => join a particular particle system
 // - DEL  /api/ps/<ps_id> => remove a ps
 // - PUT  /api/ps/<ps_id> => configure a ps
+// - WS   /api/ws/<ps_id> => listen to room updates
 func Handle() http.Handler {
 	s := &server{
 		mux:     http.NewServeMux(),
@@ -20,6 +21,7 @@ func Handle() http.Handler {
 	}
 	s.mux.HandleFunc("/api/ps", s.lobby)
 	s.mux.HandleFunc("/api/ps/", s.room)
+	s.mux.HandleFunc("/api/ws/", s.sock)
 	return s.mux
 }
 
@@ -35,6 +37,10 @@ func genUUID() string {
 type server struct {
 	mux     *http.ServeMux
 	systems map[string]*ps
+}
+
+type ps struct {
+	ID string `json:"id"`
 }
 
 // lobby provides lobby endpoints
@@ -71,7 +77,7 @@ func (s *server) room(w http.ResponseWriter, r *http.Request) {
 		enc.SetIndent("", " ")
 		enc.Encode(room)
 	case http.MethodPut:
-		// TODO
+		http.Error(w, "TODO: not yet", http.StatusNotImplemented)
 	case http.MethodDelete:
 		delete(s.systems, id)
 		http.Error(w, "deleted "+id, http.StatusAccepted)
@@ -80,6 +86,6 @@ func (s *server) room(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type ps struct {
-	ID string `json:"id"`
+func (s *server) sock(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "TODO: not yet", http.StatusNotImplemented)
 }
