@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+
+	"github.com/gorilla/websocket"
 )
 
 // Handle is the primary REST API for the server
@@ -18,6 +20,7 @@ func Handle() http.Handler {
 	s := &server{
 		mux:     http.NewServeMux(),
 		systems: make(map[string]*ps),
+		upgrade: websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024},
 	}
 	s.mux.HandleFunc("/api/ps", s.lobby)
 	s.mux.HandleFunc("/api/ps/", s.room)
@@ -37,6 +40,7 @@ func genUUID() string {
 type server struct {
 	mux     *http.ServeMux
 	systems map[string]*ps
+	upgrade websocket.Upgrader
 }
 
 type ps struct {
@@ -87,5 +91,22 @@ func (s *server) room(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) sock(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Path[8:]
+	room, ok := s.systems[id]
+	if !ok {
+		log.Printf("bad room: %q %#v", r.URL.Path, s.systems)
+		http.Error(w, "bad room", http.StatusGone)
+		return
+	}
+
+	conn, err := s.upgrade.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("cannot upgrade: %s", err)
+		http.Error(w, "cannot upgrade", http.StatusBadRequest)
+		return
+	}
+
+	conn.WriteJSON(room)
+	conn.Close()
 	http.Error(w, "TODO: not yet", http.StatusNotImplemented)
 }

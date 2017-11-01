@@ -20,5 +20,5 @@ func main() {
 	flag.Parse()
 	port := ":" + strconv.Itoa(*portArg)
 	fmt.Println("Serving on " + port)
-	http.ListenAndServe(port, nil)
+	panic(http.ListenAndServe(port, nil))
 }
