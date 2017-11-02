@@ -40,3 +40,10 @@ func (v Vector) Scale(n float64) Vector {
 	}
 	return v
 }
+
+// Copy creates a copy of the base object
+func (v Vector) Copy() Vector {
+	u := make(Vector, len(v))
+	copy(u, v)
+	return u
+}

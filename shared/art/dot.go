@@ -28,9 +28,9 @@ func (dots *Dots) SetSize(width, height float64) {
 }
 
 // Step moves the point one step forward
-func (dots *Dots) Step() {
+func (dots *Dots) Step(delta float64) {
 	for _, dot := range dots.List {
-		point := dot.Step()
+		point := dot.Step(delta)
 
 		// TODO: toggle step wrap logic based on configuration mode
 
@@ -57,10 +57,9 @@ func (dots *Dots) ForEach(fn func(dot *Dot)) {
 // ForEachPair calls fn for each pair of dots in the set
 // Worst = O(n*n), Average = O(n*log(n)), Best = O(n)
 func (dots *Dots) ForEachPair(fn func(a, b Vector)) {
-	length := len(dots.List)
-	for i := 0; i < length; i++ {
-		for j := i + 1; j < length; j++ {
-			fn(dots.List[i].Position, dots.List[j].Position)
+	for i, a := range dots.List {
+		for _, b := range dots.List[i+1:] {
+			fn(a.Position, b.Position)
 		}
 	}
 }
@@ -76,12 +75,12 @@ type Dot struct {
 func NewDot(gen func() float64, width, height, size float64) *Dot {
 	return &Dot{
 		Position: NewVector(gen()*width, gen()*height),
-		Velocity: NewRandom2DVector(gen()).Scale(gen()),
+		Velocity: NewRandom2DVector(gen()).Scale(gen() / 16),
 		Size:     gen()*size + size,
 	}
 }
 
 // Step moves the point one step forward
-func (dot *Dot) Step() Vector {
-	return dot.Position.Add(dot.Velocity)
+func (dot *Dot) Step(delta float64) Vector {
+	return dot.Position.Add(dot.Velocity.Copy().Scale(delta))
 }

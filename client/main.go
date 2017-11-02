@@ -69,10 +69,12 @@ func close(o *js.Object) {
 	o.Call("preventDefault")
 }
 
+var lastUpdate float64 = -1
+
 func draw(ms *js.Object) {
 	// print(ms.Float())
 	context.Call("clearRect", 0, 0, dots.Width, dots.Height)
-	dots.Step()
+	dots.Step(ms.Float() - lastUpdate)
 
 	// Drawing + Updating Circles
 	dots.ForEach(func(dot *art.Dot) {
@@ -88,12 +90,13 @@ func draw(ms *js.Object) {
 			in := js.InternalObject(temp).Call("toString").String()
 			context.Set("strokeStyle", "rgba(0, 0, 0, "+in+")")
 			context.Call("beginPath")
-			context.Call("moveTo", a[0], a[1])
-			context.Call("lineTo", b[0], b[1])
+			context.Call("moveTo", js.InternalObject(a[0]), js.InternalObject(a[1]))
+			context.Call("lineTo", js.InternalObject(b[0]), js.InternalObject(b[1]))
 			context.Call("stroke")
 		}
 	})
 
+	lastUpdate = ms.Float()
 	domWindow.Call("requestAnimationFrame", draw)
 }
 
